@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const width = 10
   let nextRandom = 0
   let timerId
+  let score = 0
 
   // The Tetrominoes
   const lTretromino = [
@@ -64,16 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  // make tetromino move down every second
-  
-
   // assign keycodes
   function control (e) {
     if (e.keyCode === 37) {
       moveLeft()
     } else if (e.keyCode === 39) {
       moveRight()
-    } else if (e.keyCode === 32) {
+    } else if (e.keyCode === 90) {
       rotate()
     } else if (e.keyCode === 40) {
       moveDown()
@@ -101,6 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
       currentPosition = 4
       draw()
       displayShape()
+      addScore()
+      gameOver()
     }
   }
 
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  // function for start button
+  // function for start/stop button
   StartBtn.addEventListener('click', () => {
     if (timerId) {
       clearInterval(timerId)
@@ -181,4 +181,32 @@ document.addEventListener('DOMContentLoaded', () => {
       displayShape()
     }
   })
+
+  // function to remove live and add score
+  function addScore () {
+    // run loop through all boxes
+    for (let i = 0; i < 199; i += width) {
+      const row = [i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9]
+
+      if (row.every(index => squares[index].classList.contains('taken'))) {
+        score += 10
+        ScoreDisplay.innerHTML = score
+        row.forEach(index => {
+          squares[index].classList.remove('taken')
+          squares[index].classList.remove('tetromino')
+        })
+        const squaresRemoved = squares.splice(i, width)
+        squares = squaresRemoved.concat(squares)
+        squares.forEach(cell => grid.appendChild(cell))
+      }
+    }
+  }
+
+  // game over function
+  function gameOver () {
+    if (current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+      ScoreDisplay.innerHTML = 'Game Over'
+      clearInterval(timerId)
+    }
+  }
 })
